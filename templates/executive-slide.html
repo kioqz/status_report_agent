@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: [
+              '-apple-system', 'BlinkMacSystemFont', 'Segoe UI',
+              'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif',
+            ],
+          },
+          colors: {
+            brand: {
+              50:  '#f5f0ff',
+              100: '#ede5ff',
+              200: '#daccff',
+              300: '#bfa3ff',
+              400: '#9f6bff',
+              500: '#7c3aed',
+              600: '#6d28d9',
+              700: '#5b21b6',
+              800: '#4c1d95',
+              900: '#3b0f7a',
+              950: '#1e073f',
+            }
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 1920px; height: 1080px; overflow: hidden; }
+  </style>
+</head>
+<body class="bg-white text-gray-800 font-sans antialiased">
+  <div style="width:1920px;height:1080px" class="flex flex-col">
+
+    <!-- Purple Header Bar -->
+    <header class="bg-gradient-to-r from-brand-700 via-brand-600 to-brand-500 px-14 py-5 shrink-0 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight text-white">DevOps Weekly Reports</h1>
+        <p class="text-sm text-brand-200 mt-0.5 font-light tracking-wide">{{WEEK}}</p>
+      </div>
+      <div class="flex items-center gap-6">
+        <!-- GUBERTECH logo text -->
+        <div class="flex flex-col items-end">
+          <span class="text-[22px] font-bold text-white tracking-wide">GUBERTECH<sup class="text-[10px] align-super">&reg;</sup></span>
+          <span class="text-[10px] text-brand-200 tracking-[0.15em] -mt-0.5">Subscription-Based IT Services</span>
+        </div>
+        <div class="w-px h-10 bg-brand-400/40"></div>
+        <!-- Amyris text -->
+        <span class="text-[28px] font-extrabold text-white tracking-tight">amyris</span>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="flex-1 flex flex-col gap-4 px-14 py-6 min-h-0 bg-gray-50">
+      {{PROJECTS}}
+    </main>
+
+    <!-- Footer -->
+    <footer class="shrink-0 bg-white border-t border-gray-200 px-14 py-3 flex items-center justify-between">
+      <p class="text-[11px] text-gray-400 tracking-wider uppercase">
+        Confidential and Proprietary.
+      </p>
+      <div class="flex items-center gap-4">
+        <div class="flex flex-col items-end">
+          <span class="text-[13px] font-bold text-gray-600 tracking-wide">GUBERTECH<sup class="text-[8px] align-super">&reg;</sup></span>
+          <span class="text-[8px] text-gray-400 tracking-[0.1em] -mt-0.5">Subscription-Based IT Services</span>
+        </div>
+        <span class="text-[18px] font-extrabold text-gray-700 tracking-tight">amyris</span>
+      </div>
+    </footer>
+
+  </div>
+</body>
+</html>
