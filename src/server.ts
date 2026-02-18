@@ -52,6 +52,20 @@ app.get("/api/weeks", async (c) => {
   return c.json(entries);
 });
 
+// ── API: Get saved report input ─────────────────────────────────────────
+
+app.get("/api/reports/:week", async (c) => {
+  const week = c.req.param("week");
+  const inputPath = resolve(OUTPUT_DIR, week, "input.json");
+
+  try {
+    const raw = await readFile(inputPath, "utf-8");
+    return c.json(JSON.parse(raw));
+  } catch {
+    return c.json({ error: "Report input not found" }, 404);
+  }
+});
+
 // ── API: Generate report ────────────────────────────────────────────────────
 
 app.post("/api/reports", async (c) => {
@@ -83,6 +97,12 @@ app.post("/api/reports", async (c) => {
     if (!Array.isArray(p.doing)) p.doing = [];
     if (!Array.isArray(p.next)) p.next = [];
     if (!Array.isArray(p.risks)) p.risks = [];
+  }
+
+  // Normalize optional fields
+  if (!Array.isArray(input.highlights)) input.highlights = [];
+  if (input.jiraScreenshot && typeof input.jiraScreenshot !== "string") {
+    input.jiraScreenshot = undefined;
   }
 
   try {

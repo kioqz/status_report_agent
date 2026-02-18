@@ -152,6 +152,8 @@ export async function runAgent(input: WeeklyStatusInput): Promise<string> {
       week: input.week,
       client: input.client,
       projects: computedProjects,
+      highlights: input.highlights ?? [],
+      jiraScreenshot: input.jiraScreenshot,
     };
 
     // ── 5. Build HTML slide ──────────────────────────────────
@@ -185,6 +187,8 @@ export async function generateReport(
   const htmlPath = resolve(weekDir, "status.html");
   const pngPath = resolve(weekDir, "status.png");
 
+  const inputJsonPath = resolve(weekDir, "input.json");
+  await writeFile(inputJsonPath, JSON.stringify(input, null, 2), "utf-8");
   await writeFile(htmlPath, html, "utf-8");
   await renderToPng(html, pngPath);
   await buildIndex(outputDir);
@@ -198,6 +202,11 @@ async function main() {
   const sampleInput: WeeklyStatusInput = {
     week: "2026-W07",
     client: "Gubertech DevOps Team - Amyris",
+    highlights: [
+      "Successfully migrated 12 legacy services to AKS with zero downtime",
+      "P99 latency improved 57% — from 420ms to 180ms after platform modernization",
+      "Completed security audit and IAM policy hardening across all environments",
+    ],
     projects: [
       {
         project: "Cloud Migration Phase 2",

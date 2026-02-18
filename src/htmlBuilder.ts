@@ -141,6 +141,56 @@ function buildProjectCard(p: ComputedProject): string {
     </section>`;
 }
 
+// ── Highlights Section ──────────────────────────────────────────────────────
+
+function buildHighlightsSection(highlights: string[]): string {
+  if (highlights.length === 0) return "";
+
+  const items = highlights
+    .map(
+      (h) => `
+        <div class="flex items-start gap-2">
+          <svg class="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          </svg>
+          <span class="text-[12px] text-gray-700">${esc(h)}</span>
+        </div>`,
+    )
+    .join("\n");
+
+  return `
+    <section class="bg-white border border-amber-200 rounded-xl p-5 shadow-sm">
+      <h2 class="text-[14px] font-bold uppercase tracking-[0.15em] text-amber-600 mb-3 flex items-center gap-2">
+        <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+        </svg>
+        Highlights
+      </h2>
+      <div class="grid grid-cols-2 gap-x-6 gap-y-2">
+        ${items}
+      </div>
+    </section>`;
+}
+
+// ── Jira Screenshot Section ─────────────────────────────────────────────────
+
+function buildJiraSection(jiraScreenshot?: string): string {
+  if (!jiraScreenshot) return "";
+
+  return `
+    <section class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+      <h2 class="text-[14px] font-bold uppercase tracking-[0.15em] text-brand-600 mb-3 flex items-center gap-2">
+        <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        Jira Board
+      </h2>
+      <div class="flex justify-center">
+        <img src="${jiraScreenshot}" alt="Jira Board Screenshot" class="max-h-[320px] rounded-lg border border-gray-200 shadow-sm object-contain" />
+      </div>
+    </section>`;
+}
+
 // ── Public API ──────────────────────────────────────────────────────────────
 
 /**
@@ -154,8 +204,13 @@ export async function buildHtml(status: ComputedStatus): Promise<string> {
     .map((p) => buildProjectCard(p))
     .join("\n");
 
+  const highlightsHtml = buildHighlightsSection(status.highlights);
+  const jiraHtml = buildJiraSection(status.jiraScreenshot);
+
   return template
     .replace("{{CLIENT}}", esc(status.client))
     .replace("{{WEEK}}", esc(status.week))
-    .replace("{{PROJECTS}}", projectsHtml);
+    .replace("{{HIGHLIGHTS}}", highlightsHtml)
+    .replace("{{PROJECTS}}", projectsHtml)
+    .replace("{{JIRA}}", jiraHtml);
 }

@@ -26,6 +26,8 @@ export interface WeeklyStatusInput {
   week: string;
   client: string;
   projects: ProjectInput[];
+  highlights?: string[];
+  jiraScreenshot?: string;
 }
 
 /** Normalized project output returned by the LLM (structured JSON only). */
@@ -61,4 +63,6 @@ export interface ComputedStatus {
   week: string;
   client: string;
   projects: ComputedProject[];
+  highlights: string[];
+  jiraScreenshot?: string;
 }

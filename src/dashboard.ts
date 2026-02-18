@@ -97,7 +97,7 @@ export function buildDashboardHtml(
       </div>
       <div class="flex items-center gap-5">
         <button
-          onclick="openPanel()"
+          onclick="resetForm(); openPanel(false)"
           class="flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white font-semibold text-sm px-5 py-2.5 rounded-lg border border-white/20 transition-all shadow-sm hover:shadow"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,6 +185,39 @@ export function buildDashboardHtml(
         </div>
       </div>
 
+      <!-- Highlights (global) -->
+      <div class="mb-6">
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-[11px] font-bold uppercase tracking-wider text-amber-600 flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            Highlights
+          </label>
+          <button onclick="addHighlight()" class="text-[11px] text-amber-600 hover:text-amber-800 font-semibold transition">+ Add</button>
+        </div>
+        <div id="highlightsContainer" class="space-y-1.5"></div>
+      </div>
+
+      <!-- Jira Board Screenshot -->
+      <div class="mb-6">
+        <label class="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          Jira Board Screenshot
+        </label>
+        <div id="jiraDropZone" class="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center hover:border-brand-300 transition cursor-pointer" onclick="document.getElementById('jiraFileInput').click()">
+          <div id="jiraPreviewArea">
+            <svg class="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <p class="text-xs text-gray-400">Click to upload or paste (Ctrl+V / Cmd+V) a screenshot</p>
+          </div>
+        </div>
+        <input type="file" id="jiraFileInput" accept="image/*" class="hidden" onchange="handleJiraFile(this.files[0])" />
+      </div>
+
       <!-- Projects Container -->
       <div id="projectsContainer"></div>
 
@@ -265,16 +298,22 @@ export function buildDashboardHtml(
       emptyState.classList.add('hidden');
 
       cardGrid.innerHTML = page.map(e => \`
-        <a href="\${e.htmlFile}" class="group block bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md hover:border-brand-300 transition-all p-5">
+        <div class="group bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md hover:border-brand-300 transition-all p-5">
           <div class="flex items-center justify-between mb-3">
             <span class="text-lg font-bold text-brand-700">\${e.week}</span>
             <span class="text-[10px] font-semibold uppercase tracking-widest text-brand-500 bg-brand-50 px-2.5 py-0.5 rounded-full border border-brand-100">Report</span>
           </div>
-          <div class="flex gap-3">
-            <span class="text-xs text-brand-600 group-hover:underline font-medium">View HTML</span>
-            <a href="\${e.pngFile}" class="text-xs text-gray-500 hover:underline font-medium" onclick="event.stopPropagation()">Download PNG</a>
+          <div class="flex items-center gap-3">
+            <a href="\${e.htmlFile}" class="text-xs text-brand-600 hover:underline font-medium">View HTML</a>
+            <a href="\${e.pngFile}" class="text-xs text-gray-500 hover:underline font-medium">Download PNG</a>
+            <button onclick="editReport('\${e.week}')" class="ml-auto text-xs text-amber-600 hover:text-amber-800 font-semibold transition flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+              Edit
+            </button>
           </div>
-        </a>
+        </div>
       \`).join('');
 
       // Pagination
@@ -292,10 +331,14 @@ export function buildDashboardHtml(
     render();
 
     // ── Slide-over Panel ───────────────────────────────────────
-    function openPanel() {
+    let isEditMode = false;
+
+    function openPanel(editMode) {
+      isEditMode = !!editMode;
       document.getElementById('backdrop').classList.add('open');
       document.getElementById('slidePanel').classList.add('open');
       document.body.style.overflow = 'hidden';
+      document.querySelector('#slidePanel h2').textContent = isEditMode ? 'Edit Weekly Report' : 'New Weekly Report';
       if (document.querySelectorAll('.project-block').length === 0) addProject();
     }
 
@@ -305,6 +348,112 @@ export function buildDashboardHtml(
       document.body.style.overflow = '';
     }
 
+    function resetForm() {
+      document.getElementById('inp_week').value = '${currentWeek}';
+      document.getElementById('inp_client').value = 'Gubertech DevOps Team - Amyris';
+      document.getElementById('projectsContainer').innerHTML = '';
+      document.getElementById('highlightsContainer').innerHTML = '';
+      jiraDataUri = null;
+      document.getElementById('jiraPreviewArea').innerHTML = \`
+        <svg class="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <p class="text-xs text-gray-400">Click to upload or paste (Ctrl+V / Cmd+V) a screenshot</p>
+      \`;
+      projectCounter = 0;
+      isEditMode = false;
+    }
+    // ── Jira Screenshot ────────────────────────────────────
+    let jiraDataUri = null;
+
+    function handleJiraFile(file) {
+      if (!file || !file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        jiraDataUri = e.target.result;
+        document.getElementById('jiraPreviewArea').innerHTML = \`
+          <img src="\${jiraDataUri}" class="max-h-40 rounded-lg mx-auto border border-gray-200" />
+          <button onclick="event.stopPropagation(); jiraDataUri=null; document.getElementById('jiraPreviewArea').innerHTML='<p class=\\\'text-xs text-gray-400\\\'>Removed. Click to upload again.</p>'" class="mt-2 text-xs text-red-500 hover:text-red-700 font-medium">Remove</button>
+        \`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    document.addEventListener('paste', (e) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of items) {
+        if (item.type.startsWith('image/')) {
+          e.preventDefault();
+          handleJiraFile(item.getAsFile());
+          break;
+        }
+      }
+    });
+
+    // ── Highlights ─────────────────────────────────────────
+    function addHighlight(value) {
+      const container = document.getElementById('highlightsContainer');
+      const row = document.createElement('div');
+      row.className = 'flex items-center gap-2';
+      row.innerHTML = \`
+        <input type="text" placeholder="Key highlight..." value="\${value || ''}"
+          class="highlight-input flex-1 px-3 py-1.5 rounded-lg border border-amber-200 text-xs focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition bg-white"
+        />
+        <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-red-500 transition shrink-0">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      \`;
+      container.appendChild(row);
+      row.querySelector('input').focus();
+    }
+
+    // ── Edit Report ────────────────────────────────────────
+    async function editReport(week) {
+      try {
+        const res = await fetch('/api/reports/' + week);
+        if (!res.ok) throw new Error('Report data not found');
+        const data = await res.json();
+
+        resetForm();
+
+        document.getElementById('inp_week').value = data.week || week;
+        document.getElementById('inp_client').value = data.client || '';
+
+        // Populate highlights
+        if (Array.isArray(data.highlights)) {
+          for (const h of data.highlights) addHighlight(h);
+        }
+
+        // Populate jira screenshot
+        if (data.jiraScreenshot) {
+          jiraDataUri = data.jiraScreenshot;
+          document.getElementById('jiraPreviewArea').innerHTML = \`
+            <img src="\${jiraDataUri}" class="max-h-40 rounded-lg mx-auto border border-gray-200" />
+            <button onclick="event.stopPropagation(); jiraDataUri=null; document.getElementById('jiraPreviewArea').innerHTML='<p class=\\\'text-xs text-gray-400\\\'>Removed.</p>'" class="mt-2 text-xs text-red-500 hover:text-red-700 font-medium">Remove</button>
+          \`;
+        }
+
+        // Populate projects
+        if (Array.isArray(data.projects)) {
+          for (const proj of data.projects) {
+            addProject();
+            const block = document.getElementById('project_' + projectCounter);
+            block.querySelector('.proj-name').value = proj.project || '';
+            if (Array.isArray(proj.done)) proj.done.forEach(v => addItem(projectCounter, 'done', v));
+            if (Array.isArray(proj.doing)) proj.doing.forEach(v => addItem(projectCounter, 'doing', v));
+            if (Array.isArray(proj.next)) proj.next.forEach(v => addItem(projectCounter, 'next', v));
+            if (Array.isArray(proj.risks)) proj.risks.forEach(r => addRisk(projectCounter, r.title, r.severity));
+          }
+        }
+
+        openPanel(true);
+      } catch (err) {
+        alert('Could not load report: ' + err.message);
+      }
+    }
     // ── Dynamic Form ───────────────────────────────────────────
     let projectCounter = 0;
 
@@ -366,12 +515,12 @@ export function buildDashboardHtml(
       \`;
     }
 
-    function addItem(projectId, key) {
+    function addItem(projectId, key, value) {
       const container = document.getElementById('items_' + projectId + '_' + key);
       const row = document.createElement('div');
       row.className = 'flex items-center gap-2';
       row.innerHTML = \`
-        <input type="text" placeholder="Describe the task..."
+        <input type="text" placeholder="Describe the task..." value="\${value || ''}"
           class="item-input flex-1 px-3 py-1.5 rounded-lg border border-gray-200 text-xs focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition bg-white"
         />
         <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-red-500 transition shrink-0">
@@ -384,18 +533,18 @@ export function buildDashboardHtml(
       row.querySelector('input').focus();
     }
 
-    function addRisk(projectId) {
+    function addRisk(projectId, title, severity) {
       const container = document.getElementById('risks_' + projectId);
       const row = document.createElement('div');
       row.className = 'flex items-center gap-2';
       row.innerHTML = \`
-        <input type="text" placeholder="Risk description..."
+        <input type="text" placeholder="Risk description..." value="\${title || ''}"
           class="risk-title flex-1 px-3 py-1.5 rounded-lg border border-gray-200 text-xs focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition bg-white"
         />
         <select class="risk-severity px-2 py-1.5 rounded-lg border border-gray-200 text-xs bg-white focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition">
-          <option value="Low">Low</option>
-          <option value="Medium" selected>Medium</option>
-          <option value="High">High</option>
+          <option value="Low" \${severity === 'Low' ? 'selected' : ''}>Low</option>
+          <option value="Medium" \${severity === 'Medium' || !severity ? 'selected' : ''}>Medium</option>
+          <option value="High" \${severity === 'High' ? 'selected' : ''}>High</option>
         </select>
         <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-red-500 transition shrink-0">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -436,6 +585,11 @@ export function buildDashboardHtml(
         projects.push({ project: name, done, doing, next, risks });
       }
 
+      // Collect highlights
+      const highlights = Array.from(document.querySelectorAll('#highlightsContainer .highlight-input'))
+        .map(el => el.value.trim())
+        .filter(v => v.length > 0);
+
       // UI: loading state
       btn.disabled = true;
       label.textContent = 'Generating...';
@@ -446,7 +600,7 @@ export function buildDashboardHtml(
         const res = await fetch('/api/reports', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ week, client, projects }),
+          body: JSON.stringify({ week, client, projects, highlights, jiraScreenshot: jiraDataUri || undefined }),
         });
 
         const data = await res.json();
