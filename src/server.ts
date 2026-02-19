@@ -13,7 +13,7 @@ import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
-import { readFile } from "node:fs/promises";
+import { readFile, rm } from "node:fs/promises";
 
 import type { WeeklyStatusInput } from "./schema.js";
 import { generateReport } from "./agent.js";
@@ -63,6 +63,30 @@ app.get("/api/reports/:week", async (c) => {
     return c.json(JSON.parse(raw));
   } catch {
     return c.json({ error: "Report input not found" }, 404);
+  }
+});
+
+// ── API: Delete report ──────────────────────────────────────────────────────
+
+app.delete("/api/reports/:week", async (c) => {
+  const week = c.req.param("week");
+
+  if (!/^\d{4}-W\d{2}$/.test(week)) {
+    return c.json({ error: "Invalid week format" }, 400);
+  }
+
+  const weekDir = resolve(OUTPUT_DIR, week);
+
+  try {
+    await rm(weekDir, { recursive: true, force: true });
+    const { buildIndex } = await import("./indexBuilder.js");
+    await buildIndex(OUTPUT_DIR);
+    console.log(`[report] Deleted report for ${week}`);
+    return c.json({ success: true, week });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`[report] Delete error:`, message);
+    return c.json({ error: message }, 500);
   }
 });
 

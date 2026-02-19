@@ -312,6 +312,12 @@ export function buildDashboardHtml(
               </svg>
               Edit
             </button>
+            <button onclick="deleteReport('\${e.week}')" class="text-xs text-red-500 hover:text-red-700 font-semibold transition flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+              Delete
+            </button>
           </div>
         </div>
       \`).join('');
@@ -454,6 +460,23 @@ export function buildDashboardHtml(
         alert('Could not load report: ' + err.message);
       }
     }
+
+    // ── Delete Report ────────────────────────────────────────────────────────
+    async function deleteReport(week) {
+      if (!confirm('Delete report for ' + week + '? This cannot be undone.')) return;
+      try {
+        const res = await fetch('/api/reports/' + week, { method: 'DELETE' });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Server error');
+        const idx = ALL_ENTRIES.findIndex(e => e.week === week);
+        if (idx !== -1) ALL_ENTRIES.splice(idx, 1);
+        filtered = filtered.filter(e => e.week !== week);
+        render();
+      } catch (err) {
+        alert('Failed to delete: ' + err.message);
+      }
+    }
+
     // ── Dynamic Form ───────────────────────────────────────────
     let projectCounter = 0;
 
